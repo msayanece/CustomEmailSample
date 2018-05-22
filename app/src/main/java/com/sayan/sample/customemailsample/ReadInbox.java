@@ -2,12 +2,14 @@ package com.sayan.sample.customemailsample;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -76,12 +78,13 @@ public class ReadInbox extends AsyncTask<Void, Void, Message[]> {
             ArrayList<InboxModel> inboxModels = new ArrayList<>();
             for (int i = 0, n = messages.length; i < n; i++) {
                 Message message = messages[i];
-                inboxModels.add(new InboxModel(message.getFrom()[0].toString(), message.getSubject(), message.getMessageNumber()));
+                inboxModels.add(new InboxModel(message.getFrom()[0].toString(), message.getSubject(),message.getSentDate().toString(), message.getMessageNumber()));
                 System.out.println("---------------------------------");
                 System.out.println("Email Number " + (i + 1));
                 System.out.println("Subject: " + message.getSubject());
                 System.out.println("From: " + message.getFrom()[0]);
                 System.out.println("Text: " + message.getMessageNumber());
+                System.out.println("Sent Date: " + message.getSentDate());
 
 //                    writePart(message, i);
 //                    String line = reader.readLine();
@@ -109,6 +112,7 @@ public class ReadInbox extends AsyncTask<Void, Void, Message[]> {
 //            }
         return messages;
     }
+
 
 //    public static void writeMessage(Part p, int messageNumber) throws Exception {
 //        if (p instanceof Message)

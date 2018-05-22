@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 import javax.mail.Address;
@@ -43,10 +44,14 @@ public class MailInboxRecyclerAdapter extends RecyclerView.Adapter<MailInboxRecy
         InboxModel inboxModel = inboxModels.get(position);
         String subject = inboxModel.getSubject();
         String from = inboxModel.getFrom();
+        String receivedDate=inboxModel.getSentDate();
+        //String date=
 //        message.getMessageNumber();
         holder.mailFrom.setText(from);
         holder.profileIcon.setText(from.substring(0,1));
-        holder.profileContainer.setColorFilter(getRandomColor());
+        holder.profileContainer.setImageResource(R.drawable.bg_circle);
+        holder.profileContainer.setColorFilter(inboxModel.getColor());
+        holder.timesTamp.setText(receivedDate.substring(3,10));
         if (subject.equalsIgnoreCase("")){
             holder.mailSubject.setText("[no subject]");
         }
@@ -71,6 +76,7 @@ public class MailInboxRecyclerAdapter extends RecyclerView.Adapter<MailInboxRecy
         private TextView profileBackground;
         private RelativeLayout iconContainer;
         private CircleImageView profileContainer;
+        private TextView timesTamp;
         LinearLayout view;
 
         ViewHolder(View itemView) {
@@ -81,6 +87,7 @@ public class MailInboxRecyclerAdapter extends RecyclerView.Adapter<MailInboxRecy
             //profileBackground=itemView.findViewById(R.id.profileIcon);
             iconContainer=itemView.findViewById(R.id.icon_container);
             profileContainer=itemView.findViewById(R.id.profile_container);
+            timesTamp=itemView.findViewById(R.id.timesTamp);
         }
     }
 }
