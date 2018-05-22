@@ -1,5 +1,7 @@
 package com.sayan.sample.customemailsample;
 
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.util.Properties;
+import java.util.Random;
 
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -68,10 +71,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onInboxReadCompleted() {
+        for (int i=0;i<InboxListSingleton.getInstance().getInboxModels().size();i++) {
+            InboxListSingleton.getInstance().getInboxModels().get(i).setColor(getRandomMaterialColor("400"));
+        }
         RecyclerView mRecyclerViewMailInbox = findViewById(R.id.mRecyclerViewMailInbox);
         mRecyclerViewMailInbox.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerViewMailInbox.setLayoutManager(layoutManager);
         mRecyclerViewMailInbox.setAdapter(new MailInboxRecyclerAdapter(InboxListSingleton.getInstance().getInboxModels()));
+    }
+    private int getRandomColor() {
+        Random rnd = new Random();
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+    }
+    private int getRandomMaterialColor(String typeColor) {
+        int returnColor = Color.GRAY;
+        int arrayId = getResources().getIdentifier("mdcolor_" + typeColor, "array", getPackageName());
+
+        if (arrayId != 0) {
+            TypedArray colors = getResources().obtainTypedArray(arrayId);
+            int index = (int) (Math.random() * colors.length());
+            returnColor = colors.getColor(index, Color.GRAY);
+            colors.recycle();
+        }
+        return returnColor;
     }
 }
