@@ -4,19 +4,23 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.text.Html;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
 
+import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.internet.MimeMultipart;
 
 public class ReadInbox extends AsyncTask<Void, Void, Message[]> {
 
@@ -85,7 +89,8 @@ public class ReadInbox extends AsyncTask<Void, Void, Message[]> {
                 System.out.println("From: " + message.getFrom()[0]);
                 System.out.println("Text: " + message.getMessageNumber());
                 System.out.println("Sent Date: " + message.getSentDate());
-
+                String textFromMessage = getTextFromMessage(message);
+                System.out.println("Body: " + textFromMessage);
 //                    writePart(message, i);
 //                    String line = reader.readLine();
 //                    if ("YES".equals(line)) {
@@ -104,6 +109,8 @@ public class ReadInbox extends AsyncTask<Void, Void, Message[]> {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 //            } catch (IOException e) {
 //                e.printStackTrace();
@@ -113,6 +120,35 @@ public class ReadInbox extends AsyncTask<Void, Void, Message[]> {
         return messages;
     }
 
+    private String getTextFromMessage(Message message) throws MessagingException, IOException {
+        String result = "";
+        if (message.isMimeType("text/plain")) {
+            result = message.getContent().toString();
+        } else if (message.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            result = getTextFromMimeMultipart(mimeMultipart);
+        }
+        return result;
+    }
+
+    private String getTextFromMimeMultipart(
+            MimeMultipart mimeMultipart)  throws MessagingException, IOException {
+        String result = "";
+        int count = mimeMultipart.getCount();
+        for (int i = 0; i < count; i++) {
+            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            if (bodyPart.isMimeType("text/plain")) {
+                result = result + "\n" + bodyPart.getContent();
+                break; // without break same text appears twice in my tests
+            } else if (bodyPart.isMimeType("text/html")) {
+                String html = (String) bodyPart.getContent();
+                result = result + "\n" + Html.fromHtml(html);
+            } else if (bodyPart.getContent() instanceof MimeMultipart){
+                result = result + getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
+            }
+        }
+        return result;
+    }
 
 //    public static void writeMessage(Part p, int messageNumber) throws Exception {
 //        if (p instanceof Message)
